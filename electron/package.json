@@ -1,0 +1,6 @@
+{
+  "name"             : "Huawei-Tray-Indicator",
+  "version"          : "1.0.0",
+  "main"             : "main.js",
+  "node-integration" : "false"
+}
