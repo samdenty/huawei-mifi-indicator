@@ -1,27 +1,31 @@
 {
-  "name": "huawei-mifi_tray-indicator",
+  "name": "huawei-mifi-indicator",
   "version": "1.0.0",
-  "description": "This project display a signal indicator in the Windows tray area, for Huawei MiFi devices.",
-  "main": "index.js",
+  "description": "Easily see the signal strength, battery, user count and more for your Huawei MiFi device in the Windows Tray.",
+  "main": "./src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "electron-builder"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/samdenty99/Huawei-MiFi_tray-indicator.git"
+    "url": "git+https://github.com/samdenty99/huawei-mifi-indicator.git"
   },
-  "author": "",
+  "author": "samdd",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/samdenty99/Huawei-MiFi_tray-indicator/issues"
+    "url": "https://github.com/samdenty99/huawei-mifi-indicator/issues"
   },
-  "homepage": "https://github.com/samdenty99/Huawei-MiFi_tray-indicator#readme",
-  "dependencies": {
-    "chalk": "^2.3.0",
-    "electron-main-notification": "^1.0.1",
-    "electron-notification-desktop": "0.0.4",
-    "prettysize": "^1.1.0",
-    "request": "^2.83.0",
-    "xml2js": "^0.4.19"
-  }
+  "build": {
+    "appId": "samdd.huawei-mifi-indicator",
+    "win": {
+      "target": "portable",
+      "icon": "res/logo.ico"
+    }
+  },
+  "homepage": "https://github.com/samdenty99/huawei-mifi-indicator#readme",
+  "devDependencies": {
+    "electron-builder": "^19.47.1"
+  },
+  "dependencies": {}
 }

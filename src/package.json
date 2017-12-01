@@ -1,0 +1,25 @@
+{
+  "name": "huawei-mifi_tray-indicator",
+  "version": "1.0.0",
+  "description": "This project display a signal indicator in the Windows tray area, for Huawei MiFi devices.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samdenty99/Huawei-MiFi_tray-indicator.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samdenty99/Huawei-MiFi_tray-indicator/issues"
+  },
+  "homepage": "https://github.com/samdenty99/Huawei-MiFi_tray-indicator#readme",
+  "dependencies": {
+    "chalk": "^2.3.0",
+    "prettysize": "^1.1.0",
+    "request": "^2.83.0",
+    "xml2js": "^0.4.19"
+  }
+}
