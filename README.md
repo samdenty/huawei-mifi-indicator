@@ -6,7 +6,7 @@ This project display a signal indicator in the Windows tray area, for Huawei MiF
 
 ## Getting Started
 
-1. [Download the latest release](https://github.com/samdenty99/huawei-mifi-indicator/raw/master/dist/huawei-mifi-indicator 1.0.0.exe)
+1. [Download the latest release](https://github.com/samdenty99/huawei-mifi-indicator/raw/master/dist/huawei-mifi-indicator%201.0.0.exe)
 2. Press <kbd>WIN+R</kbd> and type in `shell:startup`
 3. Copy the EXE to the above folder and launch it
 
