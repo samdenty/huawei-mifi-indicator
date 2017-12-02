@@ -4,24 +4,16 @@ const config = {
 }
 /////////////////////////////
 
-const { app, Tray, Menu, shell }	= require('electron')
-const request						= require('request').defaults({jar: true})
-const path							= require('path')
-const parseXML						= require('xml2js').parseString
-const getNetworkType				= require('./networkType.js').getNetworkType
-const pretty						= require('prettysize')
-const chalk 						= require('chalk')
+const { app, Tray, Menu, shell } = require('electron')
+
+const request			= require('request').defaults({jar: true})
+const path				= require('path')
+const parseXML			= require('xml2js').parseString
+const getNetworkType	= require('./networkType.js').getNetworkType
+const pretty			= require('prettysize')
+const chalk 			= require('chalk')
 
 let state = {}
-let defaultMenu = Menu.buildFromTemplate([
-	{
-		label: 'Exit',
-		click: () => {
-			app.quit()
-		}
-	}
-])
-let menu = defaultMenu
 
 
 process.on('unhandledRejection', (reason, p) => {
@@ -30,13 +22,78 @@ process.on('unhandledRejection', (reason, p) => {
 
 app.on('ready', () => {
 	let tray = new Tray(path.join(__dirname, './icons/tray/loading.ico'))
+	
+	let refreshConfig = () => {
+		let cMenu = configMenu()
+		tray.setContextMenu(cMenu)
+		tray.popUpContextMenu(cMenu, {
+			x: tray.getBounds().x,
+			y: tray.getBounds().y,
+		})
+	}
+	let increase = () => {
+		if (config.refreshInterval < 2000) {
+			config.refreshInterval = config.refreshInterval + 100
+		} else {
+			config.refreshInterval = config.refreshInterval + 1000
+		}
+		refreshConfig()
+	}
+
+	let decrease = () => {
+		if (config.refreshInterval == 100) return
+		if (config.refreshInterval <= 2000) {
+			config.refreshInterval = config.refreshInterval - 100
+		} else {
+			config.refreshInterval = config.refreshInterval - 1000
+		}
+		refreshConfig()
+	}
+
+	let configMenu = () => {
+		return Menu.buildFromTemplate([
+			{
+				label: 'Refresh interval',
+				sublabel: config.refreshInterval / 1000 + ' seconds',
+				enabled: false,
+			},
+			{
+				label: 'Increase',
+				icon: path.join(__dirname, './icons/context-menu/up.png'),
+				click: () => {
+					increase()
+				}
+			},
+			{
+				label: 'Decrease',
+				icon: path.join(__dirname, './icons/context-menu/down.png'),
+				click: () => {
+					decrease()
+				},
+				enabled: config.refreshInterval == 100 ? false : true,
+			},
+			{
+				type: 'separator'
+			},
+			{
+				label: 'Exit',
+				click: () => {
+					app.quit()
+				}
+			}
+		])
+	}
+	
+	let menu = configMenu()
+	tray.setContextMenu(configMenu())
+
 	tray.on('double-click', () => {
-		shell.openExternal("http://192.168.1.1/html/statistic.html")
+		// shell.openExternal("http://192.168.1.1/html/statistic.html")
 	})
+	
 	tray.on('click', () => {
 		tray.popUpContextMenu(menu)
 	})
-	tray.setContextMenu(defaultMenu)
 
 	let setCookie = () => {
 		return new Promise((resolve, reject) => {
@@ -51,14 +108,14 @@ app.on('ready', () => {
 		return new Promise((resolve, reject) => {
 			request('http://192.168.1.1/api/monitoring/status', (error, response, status) => {
 				if (error) reject(error)
-				if (status.includes("125002")) {setCookie(); return false}
+				if (!status || status.includes("125002")) {setCookie(); return false}
 				request('http://192.168.1.1/api/monitoring/traffic-statistics', (error, response, statistics) => {
 					if (error) reject(error)
-					if (statistics.includes("125002")) {setCookie(); return false}
+					if (!statistics || statistics.includes("125002")) {setCookie(); return false}
 
 					request('http://192.168.1.1/api/monitoring/check-notifications', (error, response, notifications) => {
 						if (error) reject(error)
-						if (notifications.includes("125002")) {setCookie(); return false}
+						if (!notifications || notifications.includes("125002")) {setCookie(); return false}
 	
 						resolve({
 							status: status,
@@ -73,14 +130,15 @@ app.on('ready', () => {
 	
 	let handleData = () => {
 		getData().then(xml => {
-			parseXML(xml.status, function (err, status) {
-			parseXML(xml.notifications, function (err, notifications) {
-			parseXML(xml.statistics, function (err, statistics) {
+			parseXML(xml.status, (err, status) => {
+			parseXML(xml.notifications, (err, notifications) => {
+			parseXML(xml.statistics, (err, statistics) => {
 				statistics = statistics.response
 				status = status.response
 				notifications = notifications.response
 
-				if (!status || !notifications || !statistics) return
+				if (!status || !notifications || !statistics) { handleData(); return }
+				console.log('Refreshed')
 				if (JSON.stringify(status) !== JSON.stringify(state)) {
 					let users = ' user',
 						sms = ''
@@ -167,6 +225,9 @@ app.on('ready', () => {
 					notifications: notifications,
 					statistics: statistics,
 				}
+				setTimeout(() => {
+					handleData()
+				}, config.refreshInterval)
 			})
 			})
 			})
@@ -176,8 +237,4 @@ app.on('ready', () => {
 	setCookie().then(() => {
 		handleData()
 	})
-	
-	setInterval(() => {
-		handleData()
-	}, config.refreshInterval)
 })

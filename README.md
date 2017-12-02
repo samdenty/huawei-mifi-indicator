@@ -3,6 +3,7 @@ This project display a signal indicator in the Windows tray area, for Huawei MiF
 
 ![](https://i.imgur.com/P5PHswX.png)
 ![](https://i.imgur.com/s1BHVzP.png)
+![](https://i.imgur.com/s1BHVzP.png)
 
 
 ## Getting Started
