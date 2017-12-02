@@ -1,6 +1,6 @@
 /////////////////////////////
 const config = {
-	refreshInterval: 15000
+	refreshInterval: 1000
 }
 /////////////////////////////
 
@@ -51,10 +51,12 @@ app.on('ready', () => {
 	}
 
 	let configMenu = () => {
+		let seconds = ' second'
+		if (config.refreshInterval !== 1000) seconds += 's'
 		return Menu.buildFromTemplate([
 			{
 				label: 'Refresh interval',
-				sublabel: config.refreshInterval / 1000 + ' seconds',
+				sublabel: config.refreshInterval / 1000 + seconds,
 				enabled: false,
 			},
 			{
@@ -141,7 +143,8 @@ app.on('ready', () => {
 				console.log('Refreshed')
 				if (JSON.stringify(status) !== JSON.stringify(state)) {
 					let users = ' user',
-						sms = ''
+						sms = '',
+						charging = 'battery'
 					if (notifications.UnreadMessage[0] !== '0') {
 						let message = 'message'
 						if (notifications.UnreadMessage[0] !== '1') message += 's'
@@ -149,16 +152,17 @@ app.on('ready', () => {
 						sms = '(' + notifications.UnreadMessage[0] + ' new ' + message + ')\n'
 					}
 					if (status.CurrentWifiUser[0] !== 1) users += 's'
+					if (status.BatteryStatus[0] == 1) charging = ' (charging)'
 					tray.setToolTip(
 						sms +
 						getNetworkType(status.CurrentNetworkType[0]) + " - " + status.SignalIcon[0] + " bars\n" +
 						status.CurrentWifiUser[0] + users + ' connected\n' +
-						status.BatteryPercent[0] + '% battery\n' + 
+						status.BatteryPercent[0] + '% battery' + charging + '\n' + 
 						pretty(statistics.CurrentDownload[0]) + ' download / ' + pretty(statistics.CurrentUpload[0]) + ' upload'
 					)
 					let signalIcon = 'signal-' + status.SignalIcon[0]
 					if (status.RoamingStatus[0] !== '0') signalIcon = 'roaming-' + status.SignalIcon[0]
-					if (status.ConnectionStatus[0] == '50' || status.ConnectionStatus[0] == '33') signalIcon = 'disabled-' + data.SignalIcon[0]
+					if (status.ConnectionStatus[0] == '50' || status.ConnectionStatus[0] == '33') signalIcon = 'disabled-' + status.SignalIcon[0]
 					if (status.ConnectionStatus[0] == '900') signalIcon = 'loading'
 					if (notifications.UnreadMessage[0] !== '0') signalIcon = 'sms'
 					tray.setImage(
@@ -183,7 +187,7 @@ app.on('ready', () => {
 						},
 						{
 							label: 'Battery percentage',
-							sublabel: status.BatteryPercent[0] + '%',
+							sublabel: status.BatteryPercent[0] + '%' + charging,
 							click: () => {
 								shell.openExternal("http://192.168.1.1/")
 							}
