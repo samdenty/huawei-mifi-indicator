@@ -1,7 +1,8 @@
 # Huawei MiFi indicator
 This project display a signal indicator in the Windows tray area, for Huawei MiFi devices.
 
-![](http://i.imgur.com/30EWe9E.png)
+![](https://i.imgur.com/WrdG2.png)
+![](https://i.imgur.com/s1BHVzP.png)
 
 
 ## Getting Started
