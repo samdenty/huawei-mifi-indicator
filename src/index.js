@@ -235,6 +235,13 @@ app.on('ready', () => {
 			})
 			})
 			})
+		}).catch(() => {
+			setTimeout(() => {
+				handleData()
+			}, config.refreshInterval)
+			tray.setImage(
+				path.join(__dirname, './icons/tray/loading.ico')
+			)
 		})
 	}
 
