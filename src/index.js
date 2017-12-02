@@ -97,6 +97,10 @@ app.on('ready', () => {
 		tray.popUpContextMenu(menu)
 	})
 
+	tray.on('balloon-click', () => {
+		shell.openExternal("http://192.168.1.1/html/smsinbox.html")
+	})
+
 	let setCookie = () => {
 		return new Promise((resolve, reject) => {
 			request('http://192.168.1.1', (error, response, body) => {
@@ -144,12 +148,13 @@ app.on('ready', () => {
 				if (JSON.stringify(status) !== JSON.stringify(state)) {
 					let users = ' user',
 						sms = '',
-						charging = 'battery'
+						charging = '',
+						message = 'message',
+						modifier = ''
 					if (notifications.UnreadMessage[0] !== '0') {
-						let message = 'message'
 						if (notifications.UnreadMessage[0] !== '1') message += 's'
 
-						sms = '(' + notifications.UnreadMessage[0] + ' new ' + message + ')\n'
+						sms = notifications.UnreadMessage[0] + ' new ' + message + '\n'
 					}
 					if (status.CurrentWifiUser[0] !== 1) users += 's'
 					if (status.BatteryStatus[0] == 1) charging = ' (charging)'
@@ -158,17 +163,16 @@ app.on('ready', () => {
 						getNetworkType(status.CurrentNetworkType[0]) + " - " + status.SignalIcon[0] + " bars\n" +
 						status.CurrentWifiUser[0] + users + ' connected\n' +
 						status.BatteryPercent[0] + '% battery' + charging + '\n' + 
-						pretty(statistics.CurrentDownload[0]) + ' download / ' + pretty(statistics.CurrentUpload[0]) + ' upload'
+						pretty(statistics.CurrentDownload[0]) + ' download @ ' + pretty(statistics.CurrentDownloadRate[0]) + '/s\n' +
+						pretty(statistics.CurrentUpload[0]) + ' upload @ ' + pretty(statistics.CurrentUploadRate[0]) + '/s'
 					)
 					let signalIcon = 'signal-' + status.SignalIcon[0]
 					if (status.RoamingStatus[0] !== '0') signalIcon = 'roaming-' + status.SignalIcon[0]
 					if (status.ConnectionStatus[0] == '50' || status.ConnectionStatus[0] == '33') signalIcon = 'disabled-' + status.SignalIcon[0]
 					if (status.ConnectionStatus[0] == '900') signalIcon = 'loading'
-					if (notifications.UnreadMessage[0] !== '0') signalIcon = 'sms'
-					tray.setImage(
-						path.join(__dirname, './icons/tray/' + signalIcon + '.ico')
-					)
-					menu = Menu.buildFromTemplate([
+					if (getNetworkType(status.CurrentNetworkType[0]) == '4G') modifier = '4G/'
+
+					let contextMenu = [
 						{
 							label: 'Network Type',
 							sublabel: getNetworkType(status.CurrentNetworkType[0]),
@@ -211,7 +215,26 @@ app.on('ready', () => {
 								shell.openExternal("http://192.168.1.1/html/statistic.html")
 							}
 						}
-					])
+					]
+					if (notifications.UnreadMessage[0] !== '0') {
+						tray.setImage(
+							path.join(__dirname, './icons/tray/sms.ico')
+						)
+						contextMenu.unshift({
+							label: 'SMS messaging',
+							sublabel: notifications.UnreadMessage[0] + ' unread ' + message,
+							icon: path.join(__dirname, './icons/context-menu/sms.png'),
+							click: () => {
+								shell.openExternal("http://192.168.1.1/html/smsinbox.html")
+							}
+						})
+					} else {
+						tray.setImage(
+							path.join(__dirname, './icons/tray/' + modifier + signalIcon + '.ico')
+						)
+					}
+
+					menu = Menu.buildFromTemplate(contextMenu)
 					
 				}
 				if (state.status && state.notifications && state.statistics) {
@@ -235,13 +258,14 @@ app.on('ready', () => {
 			})
 			})
 			})
-		}).catch(() => {
+		}).catch(e => {
 			setTimeout(() => {
 				handleData()
 			}, config.refreshInterval)
 			tray.setImage(
 				path.join(__dirname, './icons/tray/loading.ico')
 			)
+			throw e
 		})
 	}
 
