@@ -24,3 +24,5 @@ Huawei MiFi devices have an inbuilt API to access the status of the device at `1
 All Huawei MiFi devices should be supported, as the API is included with the Huawei Web OS. 
 
 If you encounter any issues with your specific device, open up an `Issue` and I'll attempt to resolve it
+
+[![Analytics](https://ga-beacon.appspot.com/UA-85426772-5/huawei-mifi-indicator/?pixel)](https://github.com/igrigorik/ga-beacon)
